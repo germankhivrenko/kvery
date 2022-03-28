@@ -49,18 +49,19 @@ describe('Pool', function() {
     })
   })
 
-  it('Throws when unexpected options is passed (has to check nested)', function() {
-    const fn = () => new Pool(client, {
-      connection: {
-        unexpectedName: 'whatever'
-      }
-    })
+  // has no nested so far
+  // it('Throws when unexpected options is passed (has to check nested)', function() {
+  //   const fn = () => new Pool(client, {
+  //     connection: {
+  //       unexpectedName: 'whatever'
+  //     }
+  //   })
 
-    assert.throws(fn, {
-      name: 'TypeError',
-      message: 'Got unexpected option: "connection.unexpectedName".'
-    })
-  })
+  //   assert.throws(fn, {
+  //     name: 'TypeError',
+  //     message: 'Got unexpected option: "connection.unexpectedName".'
+  //   })
+  // })
 
   it('Seizes connected PoolConnection instance from Pool', async function() {
     const pool = new Pool(client)
@@ -179,28 +180,6 @@ describe('Pool', function() {
     }
   })
 
-  it('Throws when ping on released connection', async function() {
-    const pool = new Pool(client)
-    const conn = await pool.seize()
-    conn.release()
-
-    assert.equal(conn.occupied, false)
-
-    try {
-      const res = await conn.ping()
-      assert(false, 'Has to throw when ping on released connection.')
-    } catch(err) {
-      if (!(err instanceof AssertionError)) {
-        assert(err instanceof Error)
-        assert.equal(err.message, 'Tried to ping on released connection.')
-      } else {
-        throw err
-      }
-    } finally {
-      await pool.end()
-    }
-  })
-  
   it('Throws when query on released connection', async function() {
     const pool = new Pool(client)
     const conn = await pool.seize()
@@ -224,8 +203,8 @@ describe('Pool', function() {
   })
 
   it('Throws when release connetion not from the pool', async function() {
-    const pool1 = new Pool()
-    const pool2 = new Pool()
+    const pool1 = new Pool(client)
+    const pool2 = new Pool(client)
     const conn = await pool1.seize()
 
     try {
@@ -245,7 +224,7 @@ describe('Pool', function() {
   })
 
   it('Releases and closes all connections', async function() {
-    const pool = await new Pool()
+    const pool = await new Pool(client)
     const conn1 = await pool.seize()
     const conn2 = await pool.seize()
 
@@ -261,7 +240,7 @@ describe('Pool', function() {
   })
 
   it('Releases and closes the rest of connections if some of them already closed', async function() {
-    const pool = await new Pool()
+    const pool = await new Pool(client)
     const conn1 = await pool.seize()
     const conn2 = await pool.seize()
 
