@@ -1,14 +1,14 @@
 const {strict: assert, AssertionError} = require('assert')
 const {describe, it, before, after} = require('mocha')
-const {PgClient} = require('../../pg/client')
-const {MysqlClient} = require('../../mysql/client')
+const {PgClient} = require('../../lib/pg/client')
+const {MysqlClient} = require('../../lib/mysql/client')
 
 describe('Builder', function() {
   // TODO: test apart from Client and Compiler
   // TODO: only text for setup
   const clients = {
-    pg: new PgClient(),
-    mysql: new MysqlClient()
+    pg: new PgClient({}),
+    mysql: new MysqlClient({})
   }
 
   // TODO: rearrange to be: 1 test = 1 client builder run (now 1 test = all clients run)
