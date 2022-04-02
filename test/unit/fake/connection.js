@@ -1,6 +1,6 @@
 const {Socket} = require('net')
 const {Connection} = require('../../../lib/connection')
-const {promisify} = require('../../../lib/utils')
+const {promisify} = require('../../../lib/util')
 
 class FakeConnection extends Connection {
   constructor(options) {
