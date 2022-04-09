@@ -111,5 +111,115 @@ describe('Builder', function() {
 
     assert.deepEqual(actual, expected)
   })
+
+  // WHERE ===================================================================
+  it('Creates WHERE clause (simple object syntax, single condition)', function() {
+    const actual = util((builder) => builder
+      .select('*')
+      .from('items')
+      .where({id: 1})
+      .toSQL())
+    const expected = {
+      pg: 'SELECT * FROM "items" WHERE "id" = 1;',
+      mysql: 'SELECT * FROM `items` WHERE `id` = 1;'
+    }
+
+    assert.deepEqual(actual, expected)
+  })
+  
+  it('Creates WHERE clause (simple object syntax, is null check)', function() {
+    const actual = util((builder) => builder
+      .select('*')
+      .from('items')
+      .where({description: null})
+      .toSQL())
+    const expected = {
+      pg: 'SELECT * FROM "items" WHERE "descrption" IS NULL;',
+      mysql: 'SELECT * FROM `items` WHERE `description` IS NULL;'
+    }
+
+    assert.deepEqual(actual, expected)
+  })
+
+  it('Creates WHERE clause (simple object syntax, is not null check)', function() {
+    const actual = util((builder) => builder
+      .select('*')
+      .from('items')
+      .where({description: {ne: null}})
+      .toSQL())
+    const expected = {
+      pg: 'SELECT * FROM "items" WHERE "description" IS NOT NULL;',
+      mysql: 'SELECT * FROM `items` WHERE `description` IS NOT NULL;'
+    }
+
+    assert.deepEqual(actual, expected)
+  })
+
+  it('Creates WHERE clause (simple object syntax, with "and" operator)', function() {
+    const actual = util((builder) => builder
+      .select('*')
+      .from('items')
+      .where({name: "Item Name", rate: 5})
+      .toSQL())
+    const expected = {
+      pg: `SELECT * FROM "items" WHERE "name" = 'Item Name' AND "rate" = 5;`,
+      mysql: 'SELECT * FROM `items` WHERE `name` = \'Item Name\' AND `rate` = 5;'
+    }
+
+    assert.deepEqual(actual, expected)
+  })
+
+  it('Creates WHERE clause (with the given operator)', function() {
+    const actual = util((builder) => builder
+      .select('*')
+      .from('items')
+      .where({id: {in: [1, 2, 3]}})
+      .toSQL())
+    const expected = {
+      pg: `SELECT * FROM "items" WHERE "id" IN (1, 2, 3);`,
+      mysql: 'SELECT * FROM `items` WHERE `id` IN (1, 2, 3);'
+    }
+
+    assert.deepEqual(actual, expected)
+  })
+
+  it('Creates WHERE clause (complex object operator)', function() {
+    const actual = util((builder) => builder
+      .select('*')
+      .from('items')
+      .where({
+        and: [
+          {
+            or: [
+              {
+                name: {ne: 'Item Name'},
+                rate: {gt: 10}
+              },
+              {
+                name: 'Item Name',
+                rate: {lt: 5}
+              }
+            ]
+          },
+          {
+            or: [
+              {
+                id: {in: [1, 2]}
+              },
+              {
+                rate: {gt: 20}
+              }
+            ]
+          }
+        ]
+      })
+      .toSQL())
+    const expected = {
+      pg: `SELECT * FROM "items" WHERE (("name" != 'Item Name' AND "rate" > 10) OR ("name" = 'Item Name' AND "rate" < 5)) AND (("id" IN (1, 2)) OR ("rate" > 20));`,
+      mysql: 'SELECT * FROM `items` WHERE ((`name` != \'Item Name\' AND `rate` > 10) OR (`name` = \'Item Name\' AND `rate` < 5)) AND ((`id` IN (1, 2)) OR (`rate` > 20));'
+    }
+
+    assert.deepEqual(actual, expected)
+  })
 })
 
