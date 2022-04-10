@@ -28,7 +28,6 @@ class FakeConnection extends Connection {
 
   async ping() {
     if (this._socket.pending && !this._socket.connecting) {
-      console.log('trying to connect in PING')
       await this.connect()
     }
 

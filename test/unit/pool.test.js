@@ -118,7 +118,6 @@ describe('Pool', function() {
     
     try {
       const conn2 = await pool.seize()
-      console.dir(conn2)
       assert(false, 'Has to throw if seizeTimeout occured.')
     } catch(err) {
       if (!(err instanceof AssertionError)) {

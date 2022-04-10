@@ -2,6 +2,7 @@ const {strict: assert, AssertionError} = require('assert')
 const {describe, it, before, after} = require('mocha')
 const {PgClient} = require('../../lib/pg/client')
 const {MysqlClient} = require('../../lib/mysql/client')
+const {Op} = require('../../lib/builder')
 
 describe('Builder', function() {
   // TODO: test apart from Client and Compiler
@@ -134,7 +135,7 @@ describe('Builder', function() {
       .where({description: null})
       .toSQL())
     const expected = {
-      pg: 'SELECT * FROM "items" WHERE "descrption" IS NULL;',
+      pg: 'SELECT * FROM "items" WHERE "description" IS NULL;',
       mysql: 'SELECT * FROM `items` WHERE `description` IS NULL;'
     }
 
@@ -145,7 +146,7 @@ describe('Builder', function() {
     const actual = util((builder) => builder
       .select('*')
       .from('items')
-      .where({description: {ne: null}})
+      .where({description: {[Op.ne]: null}})
       .toSQL())
     const expected = {
       pg: 'SELECT * FROM "items" WHERE "description" IS NOT NULL;',
@@ -162,8 +163,8 @@ describe('Builder', function() {
       .where({name: "Item Name", rate: 5})
       .toSQL())
     const expected = {
-      pg: `SELECT * FROM "items" WHERE "name" = 'Item Name' AND "rate" = 5;`,
-      mysql: 'SELECT * FROM `items` WHERE `name` = \'Item Name\' AND `rate` = 5;'
+      pg: `SELECT * FROM "items" WHERE ("name" = 'Item Name' AND "rate" = 5);`,
+      mysql: 'SELECT * FROM `items` WHERE (`name` = \'Item Name\' AND `rate` = 5);'
     }
 
     assert.deepEqual(actual, expected)
@@ -173,7 +174,7 @@ describe('Builder', function() {
     const actual = util((builder) => builder
       .select('*')
       .from('items')
-      .where({id: {in: [1, 2, 3]}})
+      .where({id: {[Op.in]: [1, 2, 3]}})
       .toSQL())
     const expected = {
       pg: `SELECT * FROM "items" WHERE "id" IN (1, 2, 3);`,
@@ -188,26 +189,26 @@ describe('Builder', function() {
       .select('*')
       .from('items')
       .where({
-        and: [
+        [Op.and]: [
           {
-            or: [
+            [Op.or]: [
               {
-                name: {ne: 'Item Name'},
-                rate: {gt: 10}
+                name: {[Op.ne]: 'Item Name'},
+                rate: {[Op.gt]: 10}
               },
               {
                 name: 'Item Name',
-                rate: {lt: 5}
+                rate: {[Op.lt]: 5}
               }
             ]
           },
           {
-            or: [
+            [Op.or]: [
               {
-                id: {in: [1, 2]}
+                id: {[Op.in]: [1, 2]}
               },
               {
-                rate: {gt: 20}
+                rate: {[Op.gt]: 20}
               }
             ]
           }
@@ -215,8 +216,8 @@ describe('Builder', function() {
       })
       .toSQL())
     const expected = {
-      pg: `SELECT * FROM "items" WHERE (("name" != 'Item Name' AND "rate" > 10) OR ("name" = 'Item Name' AND "rate" < 5)) AND (("id" IN (1, 2)) OR ("rate" > 20));`,
-      mysql: 'SELECT * FROM `items` WHERE ((`name` != \'Item Name\' AND `rate` > 10) OR (`name` = \'Item Name\' AND `rate` < 5)) AND ((`id` IN (1, 2)) OR (`rate` > 20));'
+      pg: `SELECT * FROM "items" WHERE ((("name" != 'Item Name' AND "rate" > 10) OR ("name" = 'Item Name' AND "rate" < 5)) AND ("id" IN (1, 2) OR "rate" > 20));`,
+      mysql: 'SELECT * FROM `items` WHERE (((`name` != \'Item Name\' AND `rate` > 10) OR (`name` = \'Item Name\' AND `rate` < 5)) AND (`id` IN (1, 2) OR `rate` > 20));'
     }
 
     assert.deepEqual(actual, expected)
