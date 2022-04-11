@@ -5,3 +5,4 @@
 4. Joins
 5. Linter setup, git hooks
 6. Subqueries
+7. Bindings
