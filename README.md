@@ -6,3 +6,5 @@
 5. Linter setup, git hooks
 6. Subqueries
 7. Bindings
+8. Normalize query results
+9. SQL injection

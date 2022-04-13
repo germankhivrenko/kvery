@@ -1,0 +1,29 @@
+version: "3.3"
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  pg-volume:
+  mysql-volume:
+
+# TODO: move vars to .env
+services:
+  pg:
+    image: "postgres:14"
+    volumes:
+      - pg-volume:/var/lib/postgresql/data 
+    ports:
+      - "25432:5432"
+    environment:
+      - POSTGRES_USER=kvery_user
+      - POSTGRES_PASSWORD=kvery_pass
+  mysql:
+    image: "mysql:5"
+    volumes:
+      - mysql-volume:/var/lib/mysql
+    ports:
+      - "23306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=kvery_pass
