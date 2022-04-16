@@ -8,3 +8,4 @@
 7. Bindings
 8. Normalize query results
 9. SQL injection
+10. db restoring to docker

@@ -11,7 +11,7 @@ volumes:
 # TODO: move vars to .env
 services:
   pg:
-    image: "postgres:14"
+    image: "postgres:12"
     volumes:
       - pg-volume:/var/lib/postgresql/data 
     ports:
