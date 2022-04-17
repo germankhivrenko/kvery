@@ -39,7 +39,7 @@ describe('INSERT/SELECT/UPDATE/DELETE statements', function() {
 
     // pg
     {
-      const pgClient = new pg.Client(omitDb(pgOpts))
+      const pgClient = new pg.Client({...pgOpts, database: 'kvery_db_template'})
       await pgClient.connect()
       await pgClient.query('DROP DATABASE IF EXISTS "kvery_db"')
       await pgClient.query('CREATE DATABASE "kvery_db" TEMPLATE "kvery_db_template"')
